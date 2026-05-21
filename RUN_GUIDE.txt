@@ -1,0 +1,79 @@
+AdBrief Manager: Campaign Brief Tracker
+=======================================
+
+Purpose
+-------
+AdBrief Manager is a full-stack web application for tracking advertising
+campaign briefs. Users can register, log in with JWT authentication, and manage
+their own campaign brief records. Each user's briefs are isolated so one user
+cannot view, edit, or delete another user's data.
+
+Technology Stack
+----------------
+- Frontend: HTML, CSS, Vanilla JavaScript
+- Backend: Node.js, Express.js
+- Database: SQLite
+- Authentication: JWT and bcryptjs
+- API documentation: Swagger UI
+- Testing: Jest
+
+Install Dependencies
+--------------------
+Install backend dependencies from the backend folder:
+
+  cd backend
+  npm install
+
+Create .env From .env.example
+-----------------------------
+From the backend folder, copy the example environment file:
+
+  cp .env.example .env
+
+On Windows PowerShell:
+
+  Copy-Item .env.example .env
+
+Review the new .env file and adjust values if needed. The default setup uses
+port 3000 and a local SQLite database file.
+
+Run the Backend
+---------------
+From the backend folder, start the server:
+
+  npm run dev
+
+Or run without nodemon:
+
+  npm start
+
+Application URL:
+
+  http://localhost:3000
+
+Swagger URL:
+
+  http://localhost:3000/api-docs
+
+Run Tests
+---------
+From the backend folder:
+
+  npm test
+
+Short Demo Flow: JWT Auth and User-Specific Data Isolation
+----------------------------------------------------------
+1. Open the application at http://localhost:3000.
+2. Register a first account, for example user1@example.com.
+3. After registration/login, the frontend stores the JWT token and sends it with
+   protected campaign brief requests.
+4. Create one or two campaign briefs as user1.
+5. Log out.
+6. Register or log in with a second account, for example user2@example.com.
+7. Confirm that user2 does not see the campaign briefs created by user1.
+8. Create a campaign brief as user2.
+9. Log out and log back in as user1.
+10. Confirm that user1 still only sees user1's own campaign briefs.
+
+The isolation works because protected brief routes use the authenticated user ID
+from the JWT token, and backend brief queries are scoped to that user.
