@@ -11,6 +11,10 @@ demonstrates a complete small information system with authentication, CRUD
 operations, business validation, persistent storage, API documentation, and unit
 tests.
 
+The final version also includes a protected current-user profile endpoint,
+enhanced dashboard metrics, campaign brief timestamp metadata, and local browser
+timezone formatting for displayed timestamps.
+
 ## Main Entity: Campaign Brief
 
 The main business entity is the **Campaign Brief**.
@@ -39,6 +43,32 @@ is stored in the database as a record in the `campaign_briefs` table.
 | `createdAt` | Record creation timestamp | Yes |
 | `updatedAt` | Last update timestamp | Yes |
 
+The frontend displays `createdAt` and `updatedAt` on campaign brief cards when
+they are returned by the API. It also safely handles `created_at` and
+`updated_at` if those names are returned. SQLite-style timestamps are treated as
+UTC and formatted in the user's local browser timezone.
+
+## Authentication and Current User Endpoint
+
+Users register and log in through the authentication API. Passwords are hashed
+with bcryptjs before storage, and successful authentication returns a JWT token.
+
+The protected endpoint `GET /api/auth/me` returns the currently authenticated
+user's safe profile data:
+
+```json
+{
+  "user": {
+    "id": 1,
+    "name": "Emre",
+    "email": "emre@example.com"
+  }
+}
+```
+
+This endpoint requires the JWT bearer token and does not return password fields,
+password hashes, or other sensitive data.
+
 ## User-Specific Data Isolation
 
 The application protects campaign brief data by associating every brief with a
@@ -55,6 +85,8 @@ Examples of this isolation:
 - Updating a brief only works if the brief belongs to the current user.
 - Deleting a brief only works if the brief belongs to the current user.
 - Dashboard summary counts are calculated only for the current user.
+- Dashboard budget, priority, and deadline metrics are also calculated only from
+  the current user's records.
 
 This means `user1@example.com` and `user2@example.com` can use the same system
 without seeing or changing each other's campaign briefs.
@@ -85,12 +117,25 @@ Important backend routes:
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+- `GET /api/auth/me`
 - `GET /api/briefs`
 - `POST /api/briefs`
 - `GET /api/briefs/:id`
 - `PUT /api/briefs/:id`
 - `DELETE /api/briefs/:id`
 - `GET /api/briefs/summary`
+
+The `GET /api/auth/me` route is protected by the existing JWT middleware and
+uses the authentication service to return only safe user profile fields.
+
+The `GET /api/briefs/summary` route keeps the original `total` and `byStatus`
+fields and also returns:
+
+- `totalBudget`: sum of budget values for the authenticated user's briefs
+- `highPriorityCount`: number of authenticated user's briefs with priority
+  `High`
+- `nearestDeadline`: earliest upcoming deadline for the authenticated user's
+  briefs, or `null` if none exists
 
 ## Frontend Architecture
 
@@ -111,7 +156,10 @@ The frontend handles:
 - Campaign brief list rendering
 - Create, edit, and delete interactions
 - Search and filter controls
-- Dashboard summary display
+- Dashboard summary display, including Total Budget, High Priority, and Next
+  Deadline cards
+- Campaign brief card metadata for Created and Updated timestamps
+- Local browser timezone formatting for displayed timestamps
 - Client-side validation and user feedback
 
 Because the frontend is served from the backend, the application can be opened at
@@ -169,12 +217,26 @@ delete behavior, so a user's briefs are removed if that user record is deleted.
 | User-specific records | Every campaign brief is scoped by authenticated `user_id` |
 | Input validation | Backend validators enforce required fields and allowed values |
 | Search and filtering | Brief list supports search, status, platform, and priority filters |
-| Dashboard/reporting | Summary endpoint returns counts by status for the current user |
+| Dashboard/reporting | Summary endpoint returns status counts, total budget, high-priority count, and nearest upcoming deadline for the current user |
+| Current user profile | Protected `GET /api/auth/me` returns safe authenticated user data: `id`, `name`, and `email` |
+| Metadata display | Campaign brief cards show Created and Updated timestamps when returned by the API |
+| Timezone handling | SQLite-style UTC timestamps are formatted in the user's local browser timezone |
 | REST API | Express routes expose JSON API endpoints |
-| API documentation | Swagger UI is available at `/api-docs` |
+| API documentation | Swagger UI is available at `/api-docs` and includes the protected `/api/auth/me` endpoint |
 | Frontend interface | Vanilla JavaScript SPA provides user-facing workflows |
-| Testing | Jest tests cover validation and business logic |
+| Testing | Jest tests cover auth service behavior, brief service business logic, and brief validation |
 | Modular design | Routes, controllers, services, validators, middleware, and utilities are separated |
+
+## Test Coverage
+
+The backend test suite uses Jest and currently includes:
+
+- Auth service tests for safe current-user profile behavior
+- Brief service tests for business logic, user scoping, deletion, creation, and
+  enhanced summary metrics
+- Brief validator tests for validation rules and allowed values
+
+The final test run contains 3 test suites and 11 tests.
 
 ## Why the Project Is Useful
 
