@@ -55,11 +55,29 @@ Swagger URL:
 
   http://localhost:3000/api-docs
 
+Swagger includes the Auth endpoint GET /api/auth/me. This endpoint is
+JWT-protected and returns the currently authenticated user's safe profile data:
+id, name, and email.
+
 Run Tests
 ---------
 From the backend folder:
 
   npm test
+
+The final version should report 3 test suites and 11 tests passing.
+
+Dashboard and Card Notes
+------------------------
+After logging in, the dashboard shows the original status count cards plus:
+
+- Total Budget
+- High Priority
+- Next Deadline
+
+Campaign brief cards also show Created At and Updated At metadata when those
+timestamps are returned by the API. Displayed timestamps are formatted for the
+user's local browser timezone.
 
 Short Demo Flow: JWT Auth and User-Specific Data Isolation
 ----------------------------------------------------------
@@ -68,12 +86,15 @@ Short Demo Flow: JWT Auth and User-Specific Data Isolation
 3. After registration/login, the frontend stores the JWT token and sends it with
    protected campaign brief requests.
 4. Create one or two campaign briefs as user1.
-5. Log out.
-6. Register or log in with a second account, for example user2@example.com.
-7. Confirm that user2 does not see the campaign briefs created by user1.
-8. Create a campaign brief as user2.
-9. Log out and log back in as user1.
-10. Confirm that user1 still only sees user1's own campaign briefs.
+5. Check the dashboard cards: Total Budget, High Priority, Next Deadline, and
+   status counts.
+6. Check the campaign brief cards for Created At and Updated At metadata.
+7. Log out.
+8. Register or log in with a second account, for example user2@example.com.
+9. Confirm that user2 does not see the campaign briefs created by user1.
+10. Create a campaign brief as user2.
+11. Log out and log back in as user1.
+12. Confirm that user1 still only sees user1's own campaign briefs.
 
 The isolation works because protected brief routes use the authenticated user ID
 from the JWT token, and backend brief queries are scoped to that user.
