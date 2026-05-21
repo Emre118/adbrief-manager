@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdBrief Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>AdBrief Manager</h1>
+      <p>Campaign Brief Tracker</p>
+    </div>
+    <button id="logoutButton" class="secondary hidden">Logout</button>
+  </header>
+
+  <main>
+    <section id="authSection" class="auth-layout">
+      <div class="hero-card">
+        <span class="eyebrow">JWT + Data Isolation</span>
+        <h2>Manage your own campaign briefs.</h2>
+        <p>
+          Register, log in, and create campaign briefs that are visible only to your account.
+          This project demonstrates CRUD, REST API, validation, Swagger, and a Vanilla JavaScript SPA.
+        </p>
+      </div>
+
+      <div class="auth-card">
+        <div class="tabs">
+          <button id="showLogin" class="tab active">Login</button>
+          <button id="showRegister" class="tab">Register</button>
+        </div>
+
+        <form id="loginForm" class="form-panel">
+          <h2>Login</h2>
+          <label>Email</label>
+          <input id="loginEmail" type="email" placeholder="emre@example.com" required>
+
+          <label>Password</label>
+          <input id="loginPassword" type="password" placeholder="password123" required>
+
+          <button type="submit">Login</button>
+        </form>
+
+        <form id="registerForm" class="form-panel hidden">
+          <h2>Register</h2>
+          <label>Name</label>
+          <input id="registerName" type="text" placeholder="Emre" required>
+
+          <label>Email</label>
+          <input id="registerEmail" type="email" placeholder="emre@example.com" required>
+
+          <label>Password</label>
+          <input id="registerPassword" type="password" placeholder="Minimum 6 characters" required>
+
+          <button type="submit">Create Account</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="dashboardSection" class="hidden">
+      <div class="dashboard-header">
+        <div>
+          <span class="eyebrow">Dashboard</span>
+          <h2 id="welcomeText">Welcome</h2>
+          <p>Only your own campaign briefs are shown here.</p>
+        </div>
+      </div>
+
+      <section id="summaryCards" class="summary-grid"></section>
+
+      <section class="content-grid">
+        <form id="briefForm" class="brief-form card">
+          <h2 id="formTitle">Create Campaign Brief</h2>
+          <input id="editingBriefId" type="hidden">
+
+          <label>Title *</label>
+          <input id="title" type="text" placeholder="Spring Sale Meta Campaign" required>
+
+          <label>Brand Name *</label>
+          <input id="brandName" type="text" placeholder="Nova Shoes" required>
+
+          <div class="two-column">
+            <div>
+              <label>Platform *</label>
+              <select id="platform" required>
+                <option value="Meta">Meta</option>
+                <option value="Google">Google</option>
+                <option value="TikTok">TikTok</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label>Objective *</label>
+              <select id="objective" required>
+                <option value="Awareness">Awareness</option>
+                <option value="Traffic">Traffic</option>
+                <option value="Leads">Leads</option>
+                <option value="Sales">Sales</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="two-column">
+            <div>
+              <label>Budget *</label>
+              <input id="budget" type="number" min="1" step="0.01" placeholder="5000" required>
+            </div>
+            <div>
+              <label>Priority *</label>
+              <select id="priority" required>
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="two-column">
+            <div>
+              <label>Start Date</label>
+              <input id="startDate" type="date">
+            </div>
+            <div>
+              <label>Deadline *</label>
+              <input id="deadline" type="date" required>
+            </div>
+          </div>
+
+          <label>Status *</label>
+          <select id="status" required>
+            <option value="Draft">Draft</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Ready">Ready</option>
+            <option value="Published">Published</option>
+            <option value="Archived">Archived</option>
+          </select>
+
+          <label>Target Audience</label>
+          <textarea id="targetAudience" rows="2" placeholder="18-34 online shoppers"></textarea>
+
+          <label>Notes</label>
+          <textarea id="notes" rows="4" placeholder="Prepare creative variations and landing page copy."></textarea>
+
+          <div class="button-row">
+            <button type="submit" id="saveBriefButton">Save Brief</button>
+            <button type="button" id="cancelEditButton" class="secondary hidden">Cancel Edit</button>
+          </div>
+        </form>
+
+        <section class="card list-panel">
+          <div class="list-header">
+            <div>
+              <h2>My Campaign Briefs</h2>
+              <p>Search and filter your own records.</p>
+            </div>
+          </div>
+
+          <div class="filters">
+            <input id="searchInput" type="text" placeholder="Search title, brand, or notes">
+            <select id="statusFilter">
+              <option value="">All statuses</option>
+              <option value="Draft">Draft</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Ready">Ready</option>
+              <option value="Published">Published</option>
+              <option value="Archived">Archived</option>
+            </select>
+            <select id="platformFilter">
+              <option value="">All platforms</option>
+              <option value="Meta">Meta</option>
+              <option value="Google">Google</option>
+              <option value="TikTok">TikTok</option>
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="Other">Other</option>
+            </select>
+            <select id="priorityFilter">
+              <option value="">All priorities</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+
+          <div id="briefList" class="brief-list"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
