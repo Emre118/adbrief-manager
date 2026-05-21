@@ -11,15 +11,17 @@ The system uses a Node.js/Express backend with a SQLite database and a Vanilla J
 ## Main Features
 
 - User registration and login with JWT authentication
+- Protected current-user profile endpoint returning safe user data
 - User-specific data isolation: each user can only view, create, update, and delete their own campaign briefs
 - Full CRUD operations for campaign briefs
 - Search and filter by status, platform, priority, and text query
-- Dashboard summary showing campaign brief counts by status
+- Dashboard summary showing campaign brief counts by status, total budget, high-priority count, and next upcoming deadline
+- Campaign brief cards show created and updated timestamps in the user's local browser timezone
 - RESTful API using JSON request/response format
 - Swagger UI for interactive API documentation
 - Frontend SPA built with Vanilla JavaScript, HTML, and CSS
 - Backend validation and frontend validation
-- Unit tests for validation and business logic
+- Unit tests for validation, authentication service behavior, and business logic
 
 ## JWT Authentication
 
@@ -38,6 +40,20 @@ Authorization: Bearer <token>
 ```
 
 Passwords are stored as hashes using `bcryptjs`; plain-text passwords are not stored in the database.
+
+The protected `GET /api/auth/me` endpoint returns the currently authenticated user's safe profile data:
+
+```json
+{
+  "user": {
+    "id": 1,
+    "name": "Emre",
+    "email": "emre@example.com"
+  }
+}
+```
+
+It does not return password fields or password hashes.
 
 ## User-Specific Data Isolation
 
@@ -68,6 +84,29 @@ The list endpoint also supports search and filtering:
 ```txt
 GET /api/briefs?search=nike&status=Ready&platform=Meta&priority=High
 ```
+
+## Dashboard Summary
+
+The dashboard summary is loaded from `GET /api/briefs/summary` and is scoped to the authenticated user.
+
+It includes the original summary fields:
+
+- `total`: total number of the user's campaign briefs
+- `byStatus`: counts grouped by status
+
+It also includes these additional metrics:
+
+- `totalBudget`: sum of budget values for the user's campaign briefs
+- `highPriorityCount`: number of the user's campaign briefs with priority `High`
+- `nearestDeadline`: earliest upcoming deadline for the user's campaign briefs, or `null` if none exists
+
+The frontend displays these values as dashboard cards, including **Total Budget**, **High Priority**, and **Next Deadline**, without removing the existing status count cards.
+
+## Campaign Brief Card Metadata
+
+Campaign brief cards display `Created` and `Updated` metadata when timestamp values are returned by the API.
+
+The backend returns these fields as `createdAt` and `updatedAt`. The frontend also safely handles `created_at` and `updated_at` if those names are ever returned. SQLite-style timestamps such as `YYYY-MM-DD HH:mm:ss` are treated as UTC and formatted in the user's local browser timezone.
 
 ## Technology Stack
 
@@ -182,9 +221,10 @@ Swagger UI can be used to inspect and manually test the API.
 4. Register or log in through the application or API.
 5. Copy the returned JWT token.
 6. In Swagger UI, authorize protected requests with `Bearer <token>`.
-7. Test campaign brief endpoints such as list, create, update, delete, and summary.
+7. Test `GET /api/auth/me` to confirm the safe current-user profile response.
+8. Test campaign brief endpoints such as list, create, update, delete, and summary.
 
-Protected campaign brief endpoints require a valid JWT token.
+Protected campaign brief endpoints and `GET /api/auth/me` require a valid JWT token.
 
 ## How to Demonstrate User-Specific Data Isolation
 
@@ -206,6 +246,7 @@ This behavior is enforced in the backend using the authenticated user's ID from 
 |---|---|---|
 | POST | `/api/auth/register` | Register a new user |
 | POST | `/api/auth/login` | Log in and receive JWT token |
+| GET | `/api/auth/me` | Get the authenticated user's safe profile data |
 
 ### Campaign Briefs
 
@@ -218,7 +259,7 @@ All campaign brief endpoints require the `Authorization: Bearer <token>` header.
 | POST | `/api/briefs` | Create a new campaign brief |
 | PUT | `/api/briefs/:id` | Update a campaign brief |
 | DELETE | `/api/briefs/:id` | Delete a campaign brief |
-| GET | `/api/briefs/summary` | Get dashboard summary |
+| GET | `/api/briefs/summary` | Get dashboard summary with status counts, total budget, high-priority count, and next deadline |
 
 Example filter request:
 
@@ -271,6 +312,8 @@ npm test
 
 The current tests focus on validation rules and business logic functions. They help confirm that important backend behavior continues to work when the project changes.
 
+Current test coverage runs 3 Jest test suites with 11 tests.
+
 ## Demo Checklist
 
 Use this checklist for a System Analysis and Design course presentation:
@@ -279,14 +322,14 @@ Use this checklist for a System Analysis and Design course presentation:
 - Register a new user.
 - Log in and explain the JWT token flow.
 - Create a campaign brief.
-- View the campaign brief list and dashboard summary.
+- View the campaign brief list, created/updated metadata, and dashboard summary cards.
 - Edit an existing campaign brief.
 - Delete a sample campaign brief.
 - Demonstrate search and filtering by text, status, platform, or priority.
 - Log in as `user1@example.com` and create user-specific records.
 - Log in as `user2@example.com` and show that user1's records are not visible.
-- Open Swagger UI at `http://localhost:3000/api-docs`.
-- Run `npm test` from the backend folder and show the Jest test result.
+- Open Swagger UI at `http://localhost:3000/api-docs` and show `GET /api/auth/me`.
+- Run `npm test` from the backend folder and show the 3 passing suites / 11 passing tests result.
 
 ## Screenshots
 
