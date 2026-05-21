@@ -17,7 +17,9 @@ Mention the main course-related system features:
 - SQLite database
 - Vanilla JavaScript frontend
 - Swagger API documentation
-- Unit tests for validation and business logic
+- Dashboard reporting metrics
+- Campaign brief timestamp metadata
+- Unit tests for validation, authentication service behavior, and business logic
 
 ## 2. Register/Login Demo
 
@@ -81,11 +83,20 @@ Create:
    - Status: Draft
 3. Save the brief.
 4. Show that the new brief appears in the list/dashboard.
+5. Point out the dashboard summary cards:
+   - Total
+   - Total Budget
+   - High Priority
+   - Next Deadline
+   - Status counts such as Draft, In Progress, Ready, Published, and Archived
 
 Read:
 
 1. Open or view the created campaign brief.
 2. Explain that data is loaded from the backend API.
+3. Show the `Created` and `Updated` metadata on the campaign brief card.
+4. Explain that these timestamps are displayed in the user's local browser
+   timezone, even though database timestamps are stored in UTC.
 
 Update:
 
@@ -103,7 +114,8 @@ Delete:
 Presentation note:
 
 > These steps demonstrate the complete Create, Read, Update, and Delete
-> lifecycle required for the system.
+> lifecycle required for the system. The dashboard cards also show how the
+> system summarizes the user's own campaign brief data.
 
 ## 5. Search and Filter Demo
 
@@ -166,8 +178,11 @@ Demo flow:
 1. Show the available API sections, such as authentication and campaign briefs.
 2. Open the register or login endpoint documentation.
 3. Show the request body format and response format.
-4. Open a campaign brief endpoint.
-5. Explain that protected endpoints require a JWT bearer token.
+4. Open the Auth section and show `GET /api/auth/me`.
+5. Explain that `/api/auth/me` is protected and returns only safe current-user
+   profile data: `id`, `name`, and `email`.
+6. Open a campaign brief endpoint.
+7. Explain that protected endpoints require a JWT bearer token.
 
 Presentation note:
 
@@ -187,8 +202,10 @@ Demo flow:
 
 1. Run the test command.
 2. Show that the Jest tests execute.
-3. Explain that the tests focus on validation rules and business logic.
-4. Connect this to reliability and maintainability.
+3. Point out the final result: 3 test suites and 11 tests passing.
+4. Explain that the tests cover auth service behavior, brief service business
+   logic, and brief validation rules.
+5. Connect this to reliability and maintainability.
 
 Presentation note:
 
@@ -203,7 +220,11 @@ End the presentation by summarizing the main system achievements:
 - Users can securely register and log in.
 - JWT protects private routes.
 - Campaign briefs support full CRUD operations.
+- Dashboard cards show total budget, high-priority count, next deadline, and
+  status counts.
+- Campaign brief cards display Created and Updated metadata in the local browser
+  timezone.
 - Search and filters help users manage many records.
 - Data is isolated per user.
-- Swagger documents the API.
-- Unit tests verify important backend logic.
+- Swagger documents the API, including the protected `/api/auth/me` endpoint.
+- Unit tests verify important backend logic with 3 suites and 11 passing tests.
