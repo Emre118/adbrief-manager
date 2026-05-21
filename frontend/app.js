@@ -253,6 +253,7 @@ function renderBriefList(briefs) {
       ${brief.startDate ? `<p><strong>Start:</strong> ${escapeHtml(brief.startDate)}</p>` : ''}
       ${brief.targetAudience ? `<p><strong>Audience:</strong> ${escapeHtml(brief.targetAudience)}</p>` : ''}
       ${brief.notes ? `<p><strong>Notes:</strong> ${escapeHtml(brief.notes)}</p>` : ''}
+      ${renderBriefMetadata(brief)}
 
       <div class="brief-actions">
         <button type="button" onclick="editBrief(${brief.id})">Edit</button>
@@ -260,6 +261,55 @@ function renderBriefList(briefs) {
       </div>
     </article>
   `).join('');
+}
+
+function renderBriefMetadata(brief) {
+  const createdAt = brief.createdAt || brief.created_at;
+  const updatedAt = brief.updatedAt || brief.updated_at;
+  const items = [];
+
+  if (createdAt) {
+    items.push(['Created', formatDateTime(createdAt)]);
+  }
+
+  if (updatedAt) {
+    items.push(['Updated', formatDateTime(updatedAt)]);
+  }
+
+  if (!items.length) {
+    return '';
+  }
+
+  return `
+    <div class="brief-metadata">
+      ${items.map(([label, value]) => `
+        <span><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</span>
+      `).join('')}
+    </div>
+  `;
+}
+
+function formatDateTime(value) {
+  const rawValue = String(value || '').trim();
+
+  if (!rawValue) {
+    return '';
+  }
+
+  const normalizedValue = rawValue.includes(' ') ? rawValue.replace(' ', 'T') : rawValue;
+  const date = new Date(normalizedValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return rawValue;
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
 }
 
 async function handleBriefSubmit(event) {

@@ -270,6 +270,21 @@ button.secondary {
   line-height: 1.45;
 }
 
+.brief-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #dde3ee;
+  color: #657083;
+  font-size: 12px;
+}
+
+.brief-metadata strong {
+  color: #313b50;
+}
+
 .badges {
   display: flex;
   flex-wrap: wrap;
