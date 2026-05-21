@@ -296,7 +296,17 @@ function formatDateTime(value) {
     return '';
   }
 
-  const normalizedValue = rawValue.includes(' ') ? rawValue.replace(' ', 'T') : rawValue;
+  const sqliteDateTimePattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+  const isoDateTimeWithoutTimezonePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?$/;
+  const timezonePattern = /(Z|[+-]\d{2}:?\d{2})$/i;
+  let normalizedValue = rawValue;
+
+  if (sqliteDateTimePattern.test(rawValue)) {
+    normalizedValue = `${rawValue.replace(' ', 'T')}Z`;
+  } else if (isoDateTimeWithoutTimezonePattern.test(rawValue) && !timezonePattern.test(rawValue)) {
+    normalizedValue = `${rawValue}Z`;
+  }
+
   const date = new Date(normalizedValue);
 
   if (Number.isNaN(date.getTime())) {
