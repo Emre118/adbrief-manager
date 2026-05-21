@@ -246,7 +246,14 @@ const openApiSpec = {
                       type: 'object',
                       properties: {
                         total: { type: 'integer', example: 3 },
-                        byStatus: { type: 'object' }
+                        byStatus: { type: 'object' },
+                        totalBudget: { type: 'number', example: 12500 },
+                        highPriorityCount: { type: 'integer', example: 2 },
+                        nearestDeadline: {
+                          type: 'string',
+                          nullable: true,
+                          example: '2026-05-25'
+                        }
                       }
                     }
                   }

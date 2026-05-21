@@ -181,6 +181,9 @@ async function loadSummary() {
 function renderSummary(summary) {
   const cards = [
     ['Total', summary.total],
+    ['Total Budget', formatNumber(summary.totalBudget)],
+    ['High Priority', summary.highPriorityCount],
+    ['Next Deadline', summary.nearestDeadline || 'None'],
     ['Draft', summary.byStatus.Draft],
     ['In Progress', summary.byStatus['In Progress']],
     ['Ready', summary.byStatus.Ready],
@@ -190,10 +193,14 @@ function renderSummary(summary) {
 
   elements.summaryCards.innerHTML = cards.map(([label, value]) => `
     <div class="summary-card">
-      <strong>${value}</strong>
-      <span>${label}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <span>${escapeHtml(label)}</span>
     </div>
   `).join('');
+}
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString();
 }
 
 async function loadBriefs() {

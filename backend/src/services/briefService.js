@@ -191,6 +191,16 @@ async function getSummary(db, userId) {
     [userId]
   );
 
+  const metricsRow = await db.get(
+    `SELECT
+       COALESCE(SUM(budget), 0) AS totalBudget,
+       SUM(CASE WHEN priority = 'High' THEN 1 ELSE 0 END) AS highPriorityCount,
+       MIN(CASE WHEN deadline >= date('now') THEN deadline ELSE NULL END) AS nearestDeadline
+     FROM campaign_briefs
+     WHERE user_id = ?`,
+    [userId]
+  );
+
   const statusRows = await db.all(
     'SELECT status, COUNT(*) AS count FROM campaign_briefs WHERE user_id = ? GROUP BY status',
     [userId]
@@ -208,7 +218,10 @@ async function getSummary(db, userId) {
 
   return {
     total: totalRow.total,
-    byStatus
+    byStatus,
+    totalBudget: metricsRow.totalBudget || 0,
+    highPriorityCount: metricsRow.highPriorityCount || 0,
+    nearestDeadline: metricsRow.nearestDeadline || null
   };
 }
 

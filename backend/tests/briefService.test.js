@@ -1,7 +1,8 @@
 const {
   buildBriefListQuery,
   createBrief,
-  deleteBrief
+  deleteBrief,
+  getSummary
 } = require('../src/services/briefService');
 
 const validBriefInput = {
@@ -93,5 +94,33 @@ describe('briefService business logic', () => {
 
     expect(deleteParams).toEqual([99, 5]);
     expect(result.deleted).toBe(true);
+  });
+
+  test('getSummary includes user-scoped budget, priority, and deadline metrics', async () => {
+    const fakeDb = {
+      get: jest.fn()
+        .mockResolvedValueOnce({ total: 3 })
+        .mockResolvedValueOnce({
+          totalBudget: 12500,
+          highPriorityCount: 2,
+          nearestDeadline: '2026-05-25'
+        }),
+      all: jest.fn().mockResolvedValue([
+        { status: 'Draft', count: 1 },
+        { status: 'Ready', count: 2 }
+      ])
+    };
+
+    const result = await getSummary(fakeDb, 5);
+
+    expect(fakeDb.get.mock.calls[0][1]).toEqual([5]);
+    expect(fakeDb.get.mock.calls[1][1]).toEqual([5]);
+    expect(fakeDb.all.mock.calls[0][1]).toEqual([5]);
+    expect(result.total).toBe(3);
+    expect(result.byStatus.Draft).toBe(1);
+    expect(result.byStatus.Ready).toBe(2);
+    expect(result.totalBudget).toBe(12500);
+    expect(result.highPriorityCount).toBe(2);
+    expect(result.nearestDeadline).toBe('2026-05-25');
   });
 });
