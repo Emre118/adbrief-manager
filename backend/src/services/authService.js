@@ -13,6 +13,14 @@ function mapUserRow(row) {
   };
 }
 
+function mapSafeUserProfile(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email
+  };
+}
+
 function createToken(user) {
   return jwt.sign(
     {
@@ -85,9 +93,24 @@ async function loginUser(db, input) {
   };
 }
 
+async function getCurrentUser(db, userId) {
+  const userRow = await db.get(
+    'SELECT id, name, email FROM users WHERE id = ?',
+    [userId]
+  );
+
+  if (!userRow) {
+    throw new AppError('User not found.', 404);
+  }
+
+  return mapSafeUserProfile(userRow);
+}
+
 module.exports = {
   createToken,
   registerUser,
   loginUser,
-  mapUserRow
+  getCurrentUser,
+  mapUserRow,
+  mapSafeUserProfile
 };

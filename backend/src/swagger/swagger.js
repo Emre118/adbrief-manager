@@ -48,6 +48,14 @@ const openApiSpec = {
           createdAt: { type: 'string', example: '2026-05-20 12:00:00' }
         }
       },
+      SafeUserProfile: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          name: { type: 'string', example: 'Emre' },
+          email: { type: 'string', example: 'emre@example.com' }
+        }
+      },
       AuthResponse: {
         type: 'object',
         properties: {
@@ -144,6 +152,30 @@ const openApiSpec = {
             }
           },
           401: { description: 'Invalid credentials' }
+        }
+      }
+    },
+    '/api/auth/me': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Get current authenticated user profile',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Current authenticated user profile',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    user: { $ref: '#/components/schemas/SafeUserProfile' }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: 'Unauthorized' },
+          404: { description: 'User not found' }
         }
       }
     },

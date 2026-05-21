@@ -1,6 +1,6 @@
 const { getDb } = require('../db');
 const sendError = require('../utils/errorResponse');
-const { registerUser, loginUser } = require('../services/authService');
+const { registerUser, loginUser, getCurrentUser } = require('../services/authService');
 
 async function register(req, res) {
   try {
@@ -20,7 +20,17 @@ async function login(req, res) {
   }
 }
 
+async function me(req, res) {
+  try {
+    const user = await getCurrentUser(getDb(), req.user.id);
+    res.status(200).json({ user });
+  } catch (error) {
+    sendError(res, error);
+  }
+}
+
 module.exports = {
   register,
-  login
+  login,
+  me
 };
